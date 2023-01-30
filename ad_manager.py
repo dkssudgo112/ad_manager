@@ -5,7 +5,11 @@ import ldap3
 def connect():
     # Connect to the AD server as a super user
     server = ldap3.Server("your_ad_server", port=389, use_ssl=False)
-    return ldap3.Connection(server, user="super_user_dn", password="super_user_password", auto_bind=True)
+    try:
+        conn = ldap3.Connection(server, user="super_user_dn", password="super_user_password", auto_bind=True)
+    except Exception as e:
+        print(e)
+    return conn
 
 def add_user():
     # Create a new user
@@ -27,16 +31,16 @@ def add_user():
     conn.unbind()
 
 def delete_user():
+    # Delete the user
     conn = connect()
     user_dn = "cn=new_user_name,ou=Users,dc=your_domain,dc=com"
-    # Delete the user
     conn.delete(user_dn)
 
     # Unbind from the AD
     conn.unbind()
 
 def make_group():
-# Create a new group
+    # Create a new group
     conn = connect()
     group_dn = "cn=new_group_name,ou=Groups,dc=your_domain,dc=com"
     group_attributes = {
@@ -52,18 +56,17 @@ def make_group():
     conn.unbind()
 
 def delete_group():
+    # Delete the group
     conn = connect()
     group_dn = "cn=new_group_name,ou=Groups,dc=your_domain,dc=com"
-    # Delete the group
     conn.delete(group_dn)
 
     # Unbind from the AD
     conn.unbind()
 
 def check_user_in_group():
-    conn = connect()
-
     # Check if a user is in a group
+    conn = connect()    
     user_dn = "cn=existing_user_name,ou=Users,dc=your_domain,dc=com"
     group_dn = "cn=existing_group_name,ou=Groups,dc=your_domain,dc=com"
     conn.search(group_dn, "(member={})".format(user_dn), attributes=["dn"])
@@ -87,11 +90,10 @@ def add_user_in_group():
     conn.unbind()
 
 def delete_user_in_group():
-    # Add a user to a group
+    # Remove a user from a group
     conn = connect()
     user_dn = "cn=existing_user_name,ou=Users,dc=your_domain,dc=com"
     group_dn = "cn=existing_group_name,ou=Groups,dc=your_domain,dc=com"
-    # Remove a user from a group
     conn.modify(group_dn, {"member": [(ldap3.MODIFY_DELETE, [user_dn])]})
 
     # Unbind from the AD
