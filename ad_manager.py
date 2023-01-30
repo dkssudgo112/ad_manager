@@ -60,6 +60,22 @@ def delete_group():
     # Unbind from the AD
     conn.unbind()
 
+def check_user_in_group():
+    conn = connect()
+
+    # Check if a user is in a group
+    user_dn = "cn=existing_user_name,ou=Users,dc=your_domain,dc=com"
+    group_dn = "cn=existing_group_name,ou=Groups,dc=your_domain,dc=com"
+    conn.search(group_dn, "(member={})".format(user_dn), attributes=["dn"])
+
+    if len(conn.entries) > 0:
+        print("User is in group")
+    else:
+        print("User is not in group")
+
+    # Unbind from the AD
+    conn.unbind()    
+
 def add_user_in_group():    
     # Add a user to a group
     conn = connect()
